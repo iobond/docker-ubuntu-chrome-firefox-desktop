@@ -59,6 +59,8 @@ RUN bash /docker_config/pre_install.sh &&\
 
 ## Install desktop
 RUN apt-get update && \
+    # upgrade all packages to latest version
+    apt-get upgrade -y && \
     # add apt repo for firefox
     add-apt-repository -y ppa:mozillateam/ppa &&\
     mkdir -p /etc/apt/preferences.d &&\
@@ -66,11 +68,18 @@ RUN apt-get update && \
 Pin: release o=LP-PPA-mozillateam\n\
 Pin-Priority: 1001" > /etc/apt/preferences.d/mozilla-firefox &&\
     # install xfce4 and firefox
-    apt-get install -y xfce4 terminator fonts-wqy-zenhei pulseaudio ffmpeg firefox dbus-x11 &&\
+    apt-get install -y xfce4 terminator fonts-wqy-zenhei pulseaudio ffmpeg firefox dbus-x11 wget &&\
     # remove and disable screensaver
     apt-get remove -y xfce4-screensaver --purge &&\
     # set firefox as default web browser
     update-alternatives --set x-www-browser /usr/bin/firefox &&\
+    rm -rf /var/lib/apt/lists/*
+
+## Install Google Chrome
+RUN apt-get update && \
+    wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb && \
+    apt-get install -y ./google-chrome-stable_current_amd64.deb && \
+    rm -f google-chrome-stable_current_amd64.deb && \
     rm -rf /var/lib/apt/lists/*
 
 ## Configure ssh 

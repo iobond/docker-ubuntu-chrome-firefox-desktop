@@ -56,6 +56,8 @@ RUN bash /docker_config/pre_install.sh &&\
 
 ## Install desktop
 RUN apt-get update && \
+    # upgrade all packages to latest version
+    apt-get upgrade -y && \
     # add apt repo for firefox
     add-apt-repository -y ppa:mozillateam/ppa &&\
     mkdir -p /etc/apt/preferences.d &&\
@@ -63,7 +65,7 @@ RUN apt-get update && \
 Pin: release o=LP-PPA-mozillateam\n\
 Pin-Priority: 1001" > /etc/apt/preferences.d/mozilla-firefox &&\
     # install xfce4 and firefox
-    apt-get install -y xfce4 terminator fonts-wqy-zenhei pulseaudio ffmpeg firefox &&\
+    apt-get install -y xfce4 terminator fonts-wqy-zenhei pulseaudio ffmpeg firefox wget &&\
     # disable terminator dbus
     sed -i "s/python/python2/" /usr/share/terminator/terminator &&\
     sed -i "s/if OPTIONS.nodbus:/if True:/" /usr/share/terminator/terminator &&\
@@ -71,6 +73,13 @@ Pin-Priority: 1001" > /etc/apt/preferences.d/mozilla-firefox &&\
     update-alternatives --set x-www-browser /usr/bin/firefox &&\
     #
     update-locale LC_CTYPE=C.UTF-8 &&\
+    rm -rf /var/lib/apt/lists/*
+
+## Install Google Chrome
+RUN apt-get update && \
+    wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb && \
+    apt-get install -y ./google-chrome-stable_current_amd64.deb && \
+    rm -f google-chrome-stable_current_amd64.deb && \
     rm -rf /var/lib/apt/lists/*
 
 ## Install remote desktop and other apps
