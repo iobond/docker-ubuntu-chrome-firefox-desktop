@@ -16,13 +16,6 @@ if [ ! -f ".env" ]; then
     echo "✓ .env 文件已创建（使用默认配置）"
 fi
 
-# 创建共享目录
-SHARED_DIR="${HOME}/desktop-share"
-if [ ! -d "$SHARED_DIR" ]; then
-    mkdir -p "$SHARED_DIR"
-    echo "✓ 共享目录已创建: $SHARED_DIR"
-fi
-
 # 构建并启动
 echo ""
 echo "构建并启动容器..."
@@ -52,6 +45,4 @@ echo "  查看日志: docker-compose logs -f"
 echo "  停止容器: docker-compose down"
 echo "  重启容器: docker-compose restart"
 echo "  进入容器: docker exec -it ubuntu-desktop bash"
-echo ""
-echo "共享目录: $SHARED_DIR"
 echo "=========================================="

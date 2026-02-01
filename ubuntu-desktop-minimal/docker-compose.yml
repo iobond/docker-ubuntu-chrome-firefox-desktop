@@ -32,16 +32,9 @@ services:
       - "${VNC_PORT:-15901}:5901"     # VNC
       - "${NOVNC_PORT:-16901}:6901"   # noVNC (Web)
 
-    # 卷挂载（方便调试和持久化数据）
+    # 卷挂载（持久化用户数据）
     volumes:
-      # 共享目录（在主机和容器之间共享文件）
-      - ${HOME}/desktop-share:/home/${USER:-ubuntu}/shared
-
-      # 可选：持久化用户数据
       - desktop-data:/home/${USER:-ubuntu}
-
-      # 可选：自定义配置
-      # - ./config/custom:/custom
 
     # 资源限制
     deploy:
