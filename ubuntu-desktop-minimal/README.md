@@ -33,7 +33,23 @@
 
 ## 快速开始
 
-### 构建镜像
+### 方法 1: 使用 Docker Compose（推荐）⭐
+
+```bash
+# 1. 克隆仓库
+git clone https://github.com/iobond/docker-ubuntu-chrome-firefox-desktop.git
+cd docker-ubuntu-chrome-firefox-desktop/ubuntu-desktop-minimal
+
+# 2. 一键启动
+./start.sh
+
+# 或使用 docker-compose
+docker-compose up -d
+```
+
+**就这么简单！** 容器会在后台自动构建并启动。
+
+### 方法 2: 手动构建
 
 ```bash
 # 使用 Ubuntu 24.04（默认）
@@ -104,7 +120,43 @@ ubuntu-desktop-minimal/
 │   └── config/
 │       ├── vncxstartup     # VNC 启动脚本
 │       └── entrypoint.sh   # 容器入口脚本
-└── docker_build.sh         # 构建脚本
+├── docker-compose.yml      # Docker Compose 配置
+├── .env.example            # 环境变量模板
+├── start.sh                # 快速启动脚本
+├── stop.sh                 # 快速停止脚本
+├── docker_build.sh         # 手动构建脚本
+└── README.md               # 使用文档
+```
+
+## 管理命令
+
+### Docker Compose 命令
+
+```bash
+# 启动容器
+./start.sh
+# 或
+docker-compose up -d
+
+# 查看日志
+docker-compose logs -f
+
+# 停止容器
+./stop.sh
+# 或
+docker-compose down
+
+# 重启容器
+docker-compose restart
+
+# 进入容器
+docker exec -it ubuntu-desktop bash
+
+# 重新构建
+docker-compose up -d --build
+
+# 删除数据卷
+docker-compose down -v
 ```
 
 ## 技术细节

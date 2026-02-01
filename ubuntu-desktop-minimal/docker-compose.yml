@@ -1,0 +1,84 @@
+# ============================================
+# Minimal Ubuntu Desktop - Docker Compose
+# ============================================
+# Usage:
+#   docker-compose up -d
+#   docker-compose down
+#   docker-compose logs -f
+# ============================================
+
+version: '3.8'
+
+services:
+  desktop:
+    build:
+      context: ./24.04
+      dockerfile: Dockerfile
+      args:
+        BASE_IMAGE: ubuntu:24.04
+    image: ubuntu-desktop-minimal:24.04
+    container_name: ubuntu-desktop
+
+    # 环境变量
+    environment:
+      - USER=${USER:-ubuntu}
+      - PASSWORD=${PASSWORD:-ubuntu}
+      - VNC_PASSWORD=${VNC_PASSWORD:-ubuntu}
+      - TZ=${TZ:-Asia/Shanghai}
+
+    # 端口映射
+    ports:
+      - "${SSH_PORT:-10022}:22"       # SSH
+      - "${VNC_PORT:-15901}:5901"     # VNC
+      - "${NOVNC_PORT:-16901}:6901"   # noVNC (Web)
+
+    # 卷挂载（方便调试和持久化数据）
+    volumes:
+      # 共享目录（在主机和容器之间共享文件）
+      - ${HOME}/desktop-share:/home/${USER:-ubuntu}/shared
+
+      # 可选：持久化用户数据
+      - desktop-data:/home/${USER:-ubuntu}
+
+      # 可选：自定义配置
+      # - ./config/custom:/custom
+
+    # 资源限制
+    deploy:
+      resources:
+        limits:
+          cpus: '${CPU_LIMIT:-2}'
+          memory: ${MEM_LIMIT:-2g}
+        reservations:
+          cpus: '${CPU_RESERVE:-0.5}'
+          memory: ${MEM_RESERVE:-512m}
+
+    # 重启策略
+    restart: unless-stopped
+
+    # 健康检查
+    healthcheck:
+      test: ["CMD", "pgrep", "xfce4-session"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+    # 安全选项
+    cap_add:
+      - SYS_PTRACE
+
+    # 网络模式
+    # network_mode: "host"  # 可选：使用主机网络（性能更好）
+    networks:
+      - desktop-network
+
+# 数据卷
+volumes:
+  desktop-data:
+    driver: local
+
+# 网络
+networks:
+  desktop-network:
+    driver: bridge
