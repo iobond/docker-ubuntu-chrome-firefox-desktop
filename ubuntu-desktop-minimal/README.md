@@ -10,23 +10,20 @@
 - **双浏览器支持**: Firefox + Google Chrome
 - **多种远程访问方式**:
   - SSH (端口 22)
-  - VNC (端口 5901)
-  - noVNC Web 界面 (端口 6901)
-- **无多余组件**: 不包含 NoMachine、KasmVNC、code-server 等额外软件
+  - KasmVNC Web 界面 (端口 6901) - 现代化的 VNC 服务器
+- **无多余组件**: 不包含 NoMachine、code-server 等额外软件
 
 ## 组件清单
 
 ### 核心组件（最小化安装）
 - xfce4 桌面环境
-- TigerVNC Server
-- noVNC (Web VNC 客户端)
+- KasmVNC Server (现代化的 Web VNC 服务器)
 - OpenSSH Server
 - Google Chrome
 - 字体和基础 X11 组件
 
 ### 不包含的组件
 - NoMachine
-- KasmVNC
 - code-server
 - CUDA
 - 其他不必要的工具和插件
@@ -66,7 +63,6 @@ docker-compose up -d
 docker run -d --restart=unless-stopped \
     --name my-desktop \
     -p 10022:22 \
-    -p 15901:5901 \
     -p 16901:6901 \
     ubuntu-desktop-minimal:24.04
 ```
@@ -79,13 +75,9 @@ ssh ubuntu@<your-host> -p 10022
 # 密码: ubuntu
 ```
 
-#### 方式 2: VNC 客户端
-- 地址: `<your-host>:15901`
-- 密码: `ubuntu`
-- 推荐客户端: Remmina, TigerVNC, RealVNC
-
-#### 方式 3: Web 浏览器 (noVNC)
+#### 方式 2: Web 浏览器 (KasmVNC)
 - 地址: `https://<your-host>:16901`
+- 用户名: `ubuntu`
 - 密码: `ubuntu`
 - 推荐使用 Chrome 浏览器访问
 
@@ -104,7 +96,7 @@ ssh ubuntu@<your-host> -p 10022
 
 ```bash
 docker run -d --name my-desktop \
-    -p 10022:22 -p 15901:5901 -p 16901:6901 \
+    -p 10022:22 -p 16901:6901 \
     -e USER=developer \
     -e PASSWORD=mypassword \
     -e VNC_PASSWORD=vncpass \
@@ -118,7 +110,6 @@ ubuntu-desktop-minimal/
 ├── 24.04/
 │   ├── Dockerfile          # Docker 镜像定义
 │   └── config/
-│       ├── vncxstartup     # VNC 启动脚本
 │       └── entrypoint.sh   # 容器入口脚本
 ├── docker-compose.yml      # Docker Compose 配置
 ├── .env.example            # 环境变量模板
@@ -166,11 +157,10 @@ docker-compose down -v
 1. **系统更新和基础依赖** - 安装最小必需包
 2. **SSH Server** - 远程命令行访问
 3. **xfce4 桌面** - 轻量级图形界面
-4. **TigerVNC Server** - VNC 服务
-5. **noVNC** - Web VNC 客户端
-6. **Google Chrome** - Chrome 浏览器
-7. **用户配置** - 创建用户和权限
-8. **VNC 配置** - 设置密码和启动脚本
+4. **KasmVNC** - 现代化的 Web VNC 服务器
+5. **Google Chrome** - Chrome 浏览器
+6. **用户配置** - 创建用户和权限
+7. **KasmVNC 配置** - 设置密码和启动脚本
 
 ### 安全说明
 
@@ -182,7 +172,7 @@ docker-compose down -v
 
 | 特性 | 原项目 | 极简版 |
 |------|--------|--------|
-| 远程桌面 | NoMachine, KasmVNC, noVNC | VNC + noVNC |
+| 远程桌面 | NoMachine, KasmVNC, noVNC | KasmVNC |
 | 编辑器 | code-server | 无（可自行安装） |
 | CUDA | 支持 | 不支持 |
 | 体积 | ~2-3GB | ~1-1.5GB |

@@ -1,9 +1,0 @@
-#!/bin/bash
-# Minimal VNC startup script for xfce4
-
-# Unset DISPLAY to avoid conflicts
-unset SESSION_MANAGER
-unset DBUS_SESSION_BUS_ADDRESS
-
-# Start xfce4 session
-exec xfce4-session

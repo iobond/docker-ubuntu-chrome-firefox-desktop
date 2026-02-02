@@ -1,6 +1,6 @@
 #!/bin/bash
 # ============================================
-# Minimal Desktop Entrypoint
+# Minimal Desktop Entrypoint with KasmVNC
 # ============================================
 
 set -e
@@ -12,31 +12,37 @@ echo "=========================================="
 # VNC password (default: ubuntu)
 VNC_PASSWORD=${VNC_PASSWORD:-ubuntu}
 
-# Configure VNC password for user
-echo "Configuring VNC..."
-su - ${USER} -c "echo '${VNC_PASSWORD}' | vncpasswd -f > /home/${USER}/.vnc/passwd"
-chmod 600 /home/${USER}/.vnc/passwd
-
-# Start SSHD
+# ============================================
+# Start SSH Server
+# ============================================
 echo "Starting SSH server..."
 /usr/sbin/sshd
 
-# Start VNC server
-echo "Starting VNC server on display ${DISPLAY}..."
-su - ${USER} -c "vncserver ${DISPLAY} -geometry 1920x1080 -depth 24"
+# ============================================
+# Configure KasmVNC
+# ============================================
+echo "Configuring KasmVNC..."
 
-# Start noVNC (web-based VNC client)
-echo "Starting noVNC on port ${NOVNC_PORT}..."
-/usr/share/novnc/utils/launch.sh --vnc localhost:${VNC_PORT} --listen ${NOVNC_PORT} &
+# Initialize KasmVNC for the user
+su - ${USER} -c "vncserver -configure ${DISPLAY}"
+
+# Set VNC password
+su - ${USER} -c "echo '${VNC_PASSWORD}' | vncpasswd -file > ~/.vnc/passwd"
+chmod 600 /home/${USER}/.vnc/passwd
+
+# ============================================
+# Start KasmVNC
+# ============================================
+echo "Starting KasmVNC on port ${KASMVNC_PORT}..."
+su - ${USER} -c "vncserver ${DISPLAY} -localhost no -cert none -plainport ${KASMVNC_PORT}"
 
 echo "=========================================="
 echo "Services started successfully!"
 echo "=========================================="
 echo "SSH:      ssh ${USER}@<host> -p <port>"
-echo "VNC:      <host>:${VNC_PORT}"
-echo "noVNC:    https://<host>:${NOVNC_PORT}"
+echo "KasmVNC:  https://<host>:${KASMVNC_PORT}"
 echo "User:     ${USER}"
-echo "Password: ${PASSWORD}"
+echo "Password: ${PASSWORD} (system), ${VNC_PASSWORD} (VNC)"
 echo "=========================================="
 
 # Keep container running

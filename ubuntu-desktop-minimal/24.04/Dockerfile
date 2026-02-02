@@ -3,7 +3,7 @@
 # For Remote Debugging
 # ============================================
 # Base: Ubuntu 24.04 Server (minimal)
-# Components: xfce4, SSH, VNC, Chrome
+# Components: xfce4, SSH, KasmVNC, Chrome
 # No extra plugins or unnecessary services
 # ============================================
 
@@ -21,8 +21,7 @@ ENV PASSWORD=ubuntu
 ENV UID=1000
 ENV GID=1000
 ENV DISPLAY=:1
-ENV VNC_PORT=5901
-ENV NOVNC_PORT=6901
+ENV KASMVNC_PORT=6901
 
 # ============================================
 # Step 1: System update and minimal dependencies
@@ -75,24 +74,17 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # ============================================
-# Step 4: Install TigerVNC server
+# Step 4: Install KasmVNC
 # ============================================
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends tigervnc-standalone-server tigervnc-xorg-extension && \
+# Add KasmVNC repository
+RUN wget -qO - https://github.com/kasmtech/KasmVNC/releases/download/v1.3.1/kasmvnc.asc | gpg --dearmor -o /usr/share/keyrings/kasmvnc-archive-keyring.gpg && \
+    echo "deb [signed-by=/usr/share/keyrings/kasmvnc-archive-keyring.gpg] https://github.com/kasmtech/KasmVNC/releases/download/v1.3.1/deb stable main" > /etc/apt/sources.list.d/kasmvnc.list && \
+    apt-get update && \
+    apt-get install -y --no-install-recommends kasmvncserver && \
     rm -rf /var/lib/apt/lists/*
 
 # ============================================
-# Step 5: Install noVNC (web-based VNC client)
-# ============================================
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-        websockify \
-        python3-websockify \
-        novnc && \
-    rm -rf /var/lib/apt/lists/*
-
-# ============================================
-# Step 6: Install Google Chrome
+# Step 5: Install Google Chrome
 # ============================================
 RUN wget -q https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb && \
     apt-get update && \
@@ -106,7 +98,7 @@ RUN wget -q https://dl.google.com/linux/direct/google-chrome-stable_current_amd6
     rm -rf /var/lib/apt/lists/*
 
 # ============================================
-# Step 7: Create user
+# Step 6: Create user
 # ============================================
 RUN useradd -m -s /bin/bash -u ${UID} ${USER} && \
     echo "${USER}:${PASSWORD}" | chpasswd && \
@@ -114,20 +106,15 @@ RUN useradd -m -s /bin/bash -u ${UID} ${USER} && \
     echo "${USER} ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
 # ============================================
-# Step 8: Setup VNC password and startup script
+# Step 7: Setup KasmVNC startup script
 # ============================================
-RUN mkdir -p /home/${USER}/.vnc && \
-    chown -R ${USER}:${USER} /home/${USER}
-
-# Copy VNC startup script
-COPY --chown=${USER}:${USER} config/vncxstartup /home/${USER}/.vnc/xstartup
 COPY --chown=${USER}:${USER} config/entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh /home/${USER}/.vnc/xstartup
+RUN chmod +x /entrypoint.sh
 
 # ============================================
 # Expose ports
 # ============================================
-EXPOSE 22 ${VNC_PORT} ${NOVNC_PORT}
+EXPOSE 22 ${KASMVNC_PORT}
 
 # ============================================
 # Health check
